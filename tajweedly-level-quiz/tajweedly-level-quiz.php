@@ -3,7 +3,7 @@
  * Plugin Name:       Tajweedly Level Quiz
  * Plugin URI:        https://tajweedly.com
  * Description:       Tajweed level tests (beginner / intermediate / advanced / kids), consented lead capture, email follow-up, referrals, blog CTAs and SEO pages. Shortcodes: [tajweedly_quiz] [tajweedly_challenge] [tajweedly_cta]
- * Version:           1.3.0
+ * Version:           1.3.1
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Tajweedly
@@ -13,7 +13,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TJQ_VERSION', '1.3.0' );
+define( 'TJQ_VERSION', '1.3.1' );
 define( 'TJQ_FILE', __FILE__ );
 define( 'TJQ_DIR', plugin_dir_path( __FILE__ ) );
 define( 'TJQ_URL', plugin_dir_url( __FILE__ ) );

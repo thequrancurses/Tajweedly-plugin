@@ -73,9 +73,19 @@ class TJQ_Content {
 		return $out;
 	}
 
+	/** Internal links shown at the end of every learning page (helps crawling and keeps readers moving). */
+	private static function related_block() {
+		return '<h2>Keep learning</h2><ul>'
+			. '<li><a href="{{url:tajweed-rules}}">Tajweed rules explained</a></li>'
+			. '<li><a href="{{url:quran-with-tajweed-colors}}">Read the Quran with tajweed colours</a></li>'
+			. '<li><a href="{{url:tajweed-glossary}}">Tajweed glossary</a></li>'
+			. '<li><a href="{{url:tajweed-test}}">Free Tajweed level test</a></li></ul>';
+	}
+
 	private static function wrap( $inner, $faq, $examples = '' ) {
 		return '<div class="tjq-page">' . $inner . ( $examples ? '[tajweedly_rule_examples codes="' . $examples . '"]' : '' )
 			. '[tajweedly_tip]' . ( $faq ? self::faq_block( $faq ) : '' )
+			. self::related_block()
 			. '<p>Want a teacher to check your recitation? Take the <a href="{{url:tajweed-test}}">free Tajweed test</a> and book a free trial lesson.</p></div>';
 	}
 
@@ -370,16 +380,23 @@ class TJQ_Content {
 
 	/** Specs for one surah page. */
 	public static function surah_spec( $n ) {
-		$s    = TJQ_Mushaf::surahs();
-		$name = $s[ $n ][0];
-		$cnt  = $s[ $n ][1];
+		$all  = TJQ_Mushaf::surahs();
+		$name = $all[ $n ][0];
+		$cnt  = $all[ $n ][1];
+		$prev = isset( $all[ $n - 1 ] ) ? '<a href="{{url:' . TJQ_Mushaf::surah_slug( $n - 1 ) . '}}">Previous: Surah ' . esc_html( $all[ $n - 1 ][0] ) . '</a>' : '';
+		$next = isset( $all[ $n + 1 ] ) ? '<a href="{{url:' . TJQ_Mushaf::surah_slug( $n + 1 ) . '}}">Next: Surah ' . esc_html( $all[ $n + 1 ][0] ) . '</a>' : '';
+		$nav  = trim( $prev . ( $prev && $next ? ' &middot; ' : '' ) . $next );
 		return array(
 			'slug'  => TJQ_Mushaf::surah_slug( $n ),
-			'title' => sprintf( 'Surah %s with Tajweed Colors (Color-Coded Quran)', $name ),
-			'desc'  => sprintf( 'Read Surah %s (%d ayat) with colour-coded tajweed rules and English translation, a colour guide and a count of the rules in the surah.', $name, $cnt ),
-			'body'  => sprintf( '<p>Read Surah %s with tajweed colours. Each colour marks a rule; the guide explains them all.</p>[tajweedly_mushaf surah="%d"]<p>More: <a href="{{url:quran-with-tajweed-colors}}">all surahs</a> and <a href="{{url:tajweed-rules}}">tajweed rules explained</a>.</p>', esc_html( $name ), $n ),
-			'faq'   => array(),
-			'plain' => true,
+			'title' => sprintf( 'Surah %s with Tajweed Colors | Color-Coded Quran', $name ),
+			'desc'  => sprintf( 'Read Surah %s (%d ayat, surah %d of 114) with colour-coded tajweed rules, English translation, a colour guide and a count of every rule in the surah.', $name, $cnt, $n ),
+			'body'  => sprintf( '<p>Surah %1$s is surah number %2$d of 114 and has %3$d ayat. Below it is shown with tajweed colours: each colour marks a rule such as ghunnah, qalqalah, ikhfa or madd, and the colour guide explains all of them. Use the buttons to change the text size, switch to a dark theme or hide the translation.</p>[tajweedly_mushaf surah="%2$d"]%4$s<p>More: <a href="{{url:quran-with-tajweed-colors}}">all surahs</a> and <a href="{{url:tajweed-rules}}">tajweed rules explained</a>.</p>', esc_html( $name ), $n, $cnt, $nav ? '<p>' . $nav . '</p>' : '' ),
+			'faq'   => array(
+				array( sprintf( 'How many ayat are in Surah %s?', $name ), sprintf( 'Surah %s has %d ayat.', $name, $cnt ) ),
+				array( 'What do the colours mean?', 'Each colour marks a tajweed rule, for example red marks qalqalah and orange marks ghunnah. Open the colour guide above the text for every colour.' ),
+				array( 'Can I learn tajweed from colours alone?', 'Colours are a learning aid. Recitation should be learned from a qualified teacher and checked against a printed mushaf.' ),
+			),
+			'meta'  => array( '_tjq_surah' => $n ),
 		);
 	}
 

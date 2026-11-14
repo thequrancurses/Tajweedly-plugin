@@ -14,6 +14,8 @@ class TJQ_SEO {
 		add_filter( 'the_content', array( __CLASS__, 'append_cta' ), 20 );
 		add_action( 'wp_footer', array( __CLASS__, 'popup' ) );
 		add_action( 'wp_head', array( __CLASS__, 'schema' ), 5 );
+		add_action( 'wp_head', array( __CLASS__, 'social_meta' ), 4 );
+		add_filter( 'wp_robots', array( __CLASS__, 'robots' ) );
 	}
 
 	private static function is_content_page() {
@@ -118,7 +120,9 @@ class TJQ_SEO {
 				'headline'      => wp_strip_all_tags( get_the_title( $post ) ),
 				'description'   => has_excerpt( $post ) ? wp_strip_all_tags( get_the_excerpt( $post ) ) : '',
 				'mainEntityOfPage' => get_permalink( $post ),
+				'datePublished' => get_post_time( 'c', true, $post ),
 				'dateModified'  => get_post_modified_time( 'c', true, $post ),
+				'inLanguage'    => 'en',
 				'author'        => array( '@type' => 'Organization', 'name' => $s['brand_name'] ),
 				'publisher'     => array( '@type' => 'Organization', 'name' => $s['brand_name'], 'url' => home_url( '/' ) ),
 			);
@@ -144,6 +148,19 @@ class TJQ_SEO {
 				'provider'            => array( '@type' => 'Organization', 'name' => $s['brand_name'], 'url' => home_url( '/' ) ),
 			);
 		}
+		if ( self::is_content_page() ) {
+			$crumbs = array( array( 'Home', home_url( '/' ) ) );
+			$hub    = get_page_by_path( 'tajweed-rules' );
+			if ( $hub && $hub->ID !== $post->ID && 'publish' === $hub->post_status ) {
+				$crumbs[] = array( 'Tajweed rules', get_permalink( $hub ) );
+			}
+			$crumbs[] = array( wp_strip_all_tags( get_the_title( $post ) ), get_permalink( $post ) );
+			$list     = array();
+			foreach ( $crumbs as $i => $c ) {
+				$list[] = array( '@type' => 'ListItem', 'position' => $i + 1, 'name' => $c[0], 'item' => $c[1] );
+			}
+			$data[] = array( '@context' => 'https://schema.org', '@type' => 'BreadcrumbList', 'itemListElement' => $list );
+		}
 		$faq = get_post_meta( $post->ID, '_tjq_faq', true );
 		if ( is_array( $faq ) && $faq ) {
 			$items = array();
@@ -159,6 +176,43 @@ class TJQ_SEO {
 		foreach ( $data as $d ) {
 			echo '<script type="application/ld+json">' . wp_json_encode( $d, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . "</script>\n"; // phpcs:ignore WordPress.Security.EscapeOutput
 		}
+	}
+
+	/** Canonical + Open Graph + Twitter tags, only when no SEO plugin already outputs them. */
+	public static function social_meta() {
+		if ( ! is_singular( 'page' ) || ( ! self::is_content_page() && ! self::on_quiz_page() ) ) {
+			return;
+		}
+		if ( defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) || defined( 'AIOSEO_VERSION' ) ) {
+			return;
+		}
+		$post  = get_post();
+		$desc  = has_excerpt( $post ) ? wp_strip_all_tags( get_the_excerpt( $post ) ) : '';
+		$title = wp_strip_all_tags( get_the_title( $post ) );
+		$url   = get_permalink( $post );
+		$name  = TJQ_Settings::get( 'brand_name' );
+		echo '<link rel="canonical" href="' . esc_url( $url ) . "\" />\n";
+		if ( '' !== $desc ) {
+			echo '<meta name="description" content="' . esc_attr( $desc ) . "\" />\n";
+			echo '<meta property="og:description" content="' . esc_attr( $desc ) . "\" />\n";
+		}
+		echo '<meta property="og:type" content="article" />' . "\n";
+		echo '<meta property="og:title" content="' . esc_attr( $title ) . "\" />\n";
+		echo '<meta property="og:url" content="' . esc_url( $url ) . "\" />\n";
+		echo '<meta property="og:site_name" content="' . esc_attr( $name ) . "\" />\n";
+		echo '<meta name="twitter:card" content="summary" />' . "\n";
+	}
+
+	/** Surah pages stay noindex until their text has been downloaded (otherwise they are thin pages). */
+	public static function robots( $robots ) {
+		if ( is_singular( 'page' ) ) {
+			$n = (int) get_post_meta( get_the_ID(), '_tjq_surah', true );
+			if ( $n && ! get_option( 'tjq_q_' . $n ) ) {
+				$robots['noindex'] = true;
+				unset( $robots['index'], $robots['max-image-preview'] );
+			}
+		}
+		return $robots;
 	}
 
 	/* ---------- Landing pages ---------- */
@@ -251,6 +305,11 @@ class TJQ_SEO {
 				update_post_meta( $id, 'rank_math_description', $spec['desc'] );
 				update_post_meta( $id, '_yoast_wpseo_title', $spec['title'] );
 				update_post_meta( $id, 'rank_math_title', $spec['title'] );
+				if ( ! empty( $spec['meta'] ) ) {
+					foreach ( $spec['meta'] as $k => $v ) {
+						update_post_meta( $id, $k, $v );
+					}
+				}
 				if ( isset( $extra_meta[ $slug ] ) ) {
 					foreach ( $extra_meta[ $slug ] as $k => $v ) {
 						update_post_meta( $id, $k, $v );

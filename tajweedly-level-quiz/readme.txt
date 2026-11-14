@@ -2,7 +2,7 @@
 Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 
 Tajweed level tests (Beginner, Intermediate, Advanced, Kids readiness) that recommend a course, collect consented email leads and follow up automatically.
@@ -44,6 +44,9 @@ Tajweed level tests (Beginner, Intermediate, Advanced, Kids readiness) that reco
 * action tjq_lead_captured - runs when a lead is saved, receives the row
 
 == Changelog ==
+= 1.3.1 =
+* SEO: surah pages now have unique intro, FAQ, previous/next links; every learning page gets a "Keep learning" link block; BreadcrumbList + datePublished schema; canonical and Open Graph tags when no SEO plugin is active; surah pages stay noindex until their text is downloaded.
+
 = 1.3.0 =
 * Colour-coded Quran reader ([tajweedly_mushaf surah="..."]): official tajweed colours, rule counts, colour guide, themes, font size, translation toggle. Text is downloaded from AlQuran Cloud and cached; nothing is typed from memory.
 * 14 rule/glossary/reader/Ramadan pages and 43 surah pages created as DRAFTS from Quran & pages.
