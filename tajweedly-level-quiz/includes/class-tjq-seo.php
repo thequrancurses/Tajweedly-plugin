@@ -282,43 +282,58 @@ class TJQ_SEO {
 	public static function create_from_specs( array $specs, array $extra_meta = array() ) {
 		$created  = 0;
 		$existing = 0;
+		$updated  = 0;
 		foreach ( $specs as $slug => $spec ) {
-			$slug = isset( $spec['slug'] ) ? $spec['slug'] : $slug;
-			if ( get_page_by_path( $slug, OBJECT, 'page' ) ) {
+			$slug  = isset( $spec['slug'] ) ? $spec['slug'] : $slug;
+			$found = get_page_by_path( $slug, OBJECT, 'page' );
+			$args  = array(
+				'post_type'    => 'page',
+				'post_title'   => $spec['title'],
+				'post_name'    => $slug,
+				'post_content' => TJQ_Content::compose( $spec ),
+				'post_excerpt' => $spec['desc'],
+			);
+			if ( $found ) {
+				// Refresh only pages this plugin generated that are STILL DRAFTS. Published or hand-edited pages are never touched.
+				if ( 'draft' === $found->post_status && get_post_meta( $found->ID, '_tjq_page', true ) ) {
+					$args['ID'] = $found->ID;
+					$id         = wp_update_post( $args );
+					if ( $id && ! is_wp_error( $id ) ) {
+						self::save_meta( $id, $slug, $spec, $extra_meta );
+						++$updated;
+						continue;
+					}
+				}
 				++$existing;
 				continue;
 			}
-			$id = wp_insert_post(
-				array(
-					'post_type'    => 'page',
-					'post_status'  => 'draft',
-					'post_title'   => $spec['title'],
-					'post_name'    => $slug,
-					'post_content' => TJQ_Content::compose( $spec ),
-					'post_excerpt' => $spec['desc'],
-				)
-			);
+			$args['post_status'] = 'draft';
+			$id                  = wp_insert_post( $args );
 			if ( $id && ! is_wp_error( $id ) ) {
-				update_post_meta( $id, '_tjq_page', 1 );
-				update_post_meta( $id, '_tjq_faq', isset( $spec['faq'] ) ? $spec['faq'] : array() );
-				update_post_meta( $id, '_yoast_wpseo_metadesc', $spec['desc'] );
-				update_post_meta( $id, 'rank_math_description', $spec['desc'] );
-				update_post_meta( $id, '_yoast_wpseo_title', $spec['title'] );
-				update_post_meta( $id, 'rank_math_title', $spec['title'] );
-				if ( ! empty( $spec['meta'] ) ) {
-					foreach ( $spec['meta'] as $k => $v ) {
-						update_post_meta( $id, $k, $v );
-					}
-				}
-				if ( isset( $extra_meta[ $slug ] ) ) {
-					foreach ( $extra_meta[ $slug ] as $k => $v ) {
-						update_post_meta( $id, $k, $v );
-					}
-				}
+				self::save_meta( $id, $slug, $spec, $extra_meta );
 				++$created;
 			}
 		}
-		return array( $created, $existing );
+		return array( $created, $existing, $updated );
+	}
+
+	private static function save_meta( $id, $slug, array $spec, array $extra_meta ) {
+		update_post_meta( $id, '_tjq_page', 1 );
+		update_post_meta( $id, '_tjq_faq', isset( $spec['faq'] ) ? $spec['faq'] : array() );
+		update_post_meta( $id, '_yoast_wpseo_metadesc', $spec['desc'] );
+		update_post_meta( $id, 'rank_math_description', $spec['desc'] );
+		update_post_meta( $id, '_yoast_wpseo_title', $spec['title'] );
+		update_post_meta( $id, 'rank_math_title', $spec['title'] );
+		if ( ! empty( $spec['meta'] ) ) {
+			foreach ( $spec['meta'] as $k => $v ) {
+				update_post_meta( $id, $k, $v );
+			}
+		}
+		if ( isset( $extra_meta[ $slug ] ) ) {
+			foreach ( $extra_meta[ $slug ] as $k => $v ) {
+				update_post_meta( $id, $k, $v );
+			}
+		}
 	}
 
 	public static function create_content_pages() {

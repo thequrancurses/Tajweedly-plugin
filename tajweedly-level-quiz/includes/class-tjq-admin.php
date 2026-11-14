@@ -58,7 +58,7 @@ class TJQ_Admin {
 		);
 		$k = sanitize_key( $_GET['tjq_msg'] );
 		if ( isset( $map[ $k ] ) ) {
-			$text = $map[ $k ][1] . ( 'pages' === $k ? sprintf( ' (%d new, %d already existed)', $n, isset( $_GET['e'] ) ? (int) $_GET['e'] : 0 ) : '' );
+			$text = $map[ $k ][1] . ( 'pages' === $k ? sprintf( ' (%d new, %d draft pages refreshed, %d left untouched because published or not created by this plugin)', $n, isset( $_GET['u'] ) ? (int) $_GET['u'] : 0, isset( $_GET['e'] ) ? (int) $_GET['e'] : 0 ) : '' );
 			printf( '<div class="notice notice-%s is-dismissible"><p>%s</p></div>', esc_attr( $map[ $k ][0] ), esc_html( $text ) );
 		}
 	}
@@ -362,15 +362,15 @@ class TJQ_Admin {
 
 	public static function create_content() {
 		self::guard( 'tjq_create_content' );
-		list( $created, $existing ) = TJQ_SEO::create_content_pages();
-		wp_safe_redirect( admin_url( 'admin.php?page=tjq-quran&tjq_msg=pages&n=' . (int) $created . '&e=' . (int) $existing ) );
+		list( $created, $existing, $updated ) = TJQ_SEO::create_content_pages();
+		wp_safe_redirect( admin_url( 'admin.php?page=tjq-quran&tjq_msg=pages&n=' . (int) $created . '&e=' . (int) $existing . '&u=' . (int) $updated ) );
 		exit;
 	}
 
 	public static function create_surahs() {
 		self::guard( 'tjq_create_surahs' );
-		list( $created, $existing ) = TJQ_SEO::create_surah_pages( TJQ_Content::default_surahs() );
-		wp_safe_redirect( admin_url( 'admin.php?page=tjq-quran&tjq_msg=pages&n=' . (int) $created . '&e=' . (int) $existing ) );
+		list( $created, $existing, $updated ) = TJQ_SEO::create_surah_pages( TJQ_Content::default_surahs() );
+		wp_safe_redirect( admin_url( 'admin.php?page=tjq-quran&tjq_msg=pages&n=' . (int) $created . '&e=' . (int) $existing . '&u=' . (int) $updated ) );
 		exit;
 	}
 
@@ -403,7 +403,7 @@ class TJQ_Admin {
 				<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=tjq_create_surahs' ), 'tjq_create_surahs' ) ); ?>">Create surah pages</a>
 				<span class="description">Al-Fatihah, Al-Kahf, Ya-Sin, Ar-Rahman, Al-Waqiah, Al-Mulk and all of Juz Amma (<?php echo (int) count( TJQ_Content::default_surahs() ); ?> pages).</span>
 			</p>
-			<p class="description">Pages are created as <strong>drafts</strong> and never overwrite existing slugs. Publish them gradually (a few per week) and add the "Tajweed rules" hub to your menu.</p>
+			<p class="description">Pages are created as <strong>drafts</strong>. Pressing a button again refreshes pages that are still drafts and were made by this plugin (so you get the latest improvements); published pages are never touched. Publish them gradually (a few per week) and add the "Tajweed rules" hub to your menu.</p>
 		</div>
 		<script>
 		(function(){
