@@ -83,8 +83,8 @@ class TJQ_Content {
 	}
 
 	private static function wrap( $inner, $faq, $examples = '' ) {
-		return '<div class="tjq-page">' . $inner . ( $examples ? '[tajweedly_rule_examples codes="' . $examples . '"]' : '' )
-			. '[tajweedly_tip]' . ( $faq ? self::faq_block( $faq ) : '' )
+		return '<div class="tjq-page">[tajweedly_lesson_top]' . $inner . ( $examples ? '[tajweedly_rule_examples codes="' . $examples . '"]' : '' )
+			. '[tajweedly_lesson_end][tajweedly_tip]' . ( $faq ? self::faq_block( $faq ) : '' )
 			. self::related_block()
 			. '<p>Want a teacher to check your recitation? Take the <a href="{{url:tajweed-test}}">free Tajweed test</a> and book a free trial lesson.</p></div>';
 	}
@@ -112,7 +112,9 @@ class TJQ_Content {
 				array( 'What are the main tajweed rules?', 'The core groups are the rules of noon sakinah and tanween, meem sakinah, ghunnah, qalqalah, madd (prolongation), the sun and moon letters, and the points of articulation (makharij).' ),
 				array( 'Where should a beginner start?', 'Start with the letters and their sounds, then the short vowels, sukoon and shaddah, then the noon sakinah rules. A teacher who can hear you is the fastest way to correct mistakes.' ),
 			),
-			'body'  => '<p>Tajweed means reciting the Quran with every letter given its proper sound, length and quality. These pages explain the main rules in plain English. Start here and follow the links.</p>'
+			'body'  => '<p>Tajweed means reciting the Quran with every letter given its proper sound, length and quality. These pages explain the main rules in plain English. Start here and follow the lessons in order.</p>'
+				. '<h2>Your learning path</h2>[tajweedly_path]'
+				. '<h2>Explore the letters</h2><p>Tap a rule to see which letters it applies to.</p>[tajweedly_explorer]'
 				. '<h2>The main rule groups</h2><ul>'
 				. '<li><a href="{{url:izhar-tajweed-rules}}">Izhar</a>, <a href="{{url:idgham-tajweed-rules}}">Idgham</a>, <a href="{{url:iqlab-tajweed-rules}}">Iqlab</a> and <a href="{{url:ikhfa-tajweed-rules}}">Ikhfa</a>: what to do with a noon sakinah or tanween</li>'
 				. '<li><a href="{{url:meem-sakinah-tajweed-rules}}">Meem sakinah</a>: three rules</li>'
@@ -122,7 +124,7 @@ class TJQ_Content {
 				. '<li><a href="{{url:sun-and-moon-letters}}">Sun and moon letters</a>: how to read "al-"</li>'
 				. '<li><a href="{{url:makharij-al-huruf}}">Makharij</a>: where each letter comes from</li>'
 				. '</ul><h2>Noon sakinah and tanween at a glance</h2>' . self::noon_table()
-				. '<h2>See the rules in the Quran</h2><p>Open the <a href="{{url:quran-with-tajweed-colors}}">colour-coded Quran</a>: every rule has its own colour. Not sure where you stand? Try the <a href="{{url:tajweed-test}}">free Tajweed test</a>.</p>'
+				. '<h2>Practise now</h2>[tajweedly_drill type="noon"]<h2>See the rules in the Quran</h2><p>Open the <a href="{{url:quran-with-tajweed-colors}}">colour-coded Quran</a>: every rule has its own colour. Not sure where you stand? Try the <a href="{{url:tajweed-test}}">free Tajweed test</a>.</p>'
 				. '<p><a href="{{url:tajweed-glossary}}">Tajweed glossary</a>: every term in one place.</p>',
 		);
 
