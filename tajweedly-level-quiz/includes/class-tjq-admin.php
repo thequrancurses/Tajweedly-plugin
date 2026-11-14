@@ -369,7 +369,7 @@ class TJQ_Admin {
 
 	public static function create_surahs() {
 		self::guard( 'tjq_create_surahs' );
-		list( $created, $existing, $updated ) = TJQ_SEO::create_surah_pages( TJQ_Content::default_surahs(), ! empty( $_GET['all'] ) ); // phpcs:ignore WordPress.Security.NonceVerification -- nonce checked in guard()
+		list( $created, $existing, $updated ) = TJQ_SEO::create_surah_pages( ( isset( $_GET['set'] ) && 'all' === $_GET['set'] ) ? range( 1, 114 ) : TJQ_Content::default_surahs(), ! empty( $_GET['all'] ) ); // phpcs:ignore WordPress.Security.NonceVerification -- nonce checked in guard()
 		wp_safe_redirect( admin_url( 'admin.php?page=tjq-quran&tjq_msg=pages&n=' . (int) $created . '&e=' . (int) $existing . '&u=' . (int) $updated ) );
 		exit;
 	}
@@ -402,6 +402,7 @@ class TJQ_Admin {
 			</p>
 			<p>
 				<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=tjq_create_surahs' ), 'tjq_create_surahs' ) ); ?>">Create surah pages</a>
+				<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=tjq_create_surahs&set=all' ), 'tjq_create_surahs' ) ); ?>">Create ALL 114 surah pages</a>
 				<a class="button" onclick="return confirm('This replaces the content of surah pages made by this plugin, INCLUDING published ones. Manual edits to those pages are lost (WordPress keeps a revision). Continue?');" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=tjq_create_surahs&all=1' ), 'tjq_create_surahs' ) ); ?>">Refresh published surah pages too</a>
 				<span class="description">Al-Fatihah, Al-Kahf, Ya-Sin, Ar-Rahman, Al-Waqiah, Al-Mulk and all of Juz Amma (<?php echo (int) count( TJQ_Content::default_surahs() ); ?> pages).</span>
 			</p>

@@ -2,7 +2,7 @@
 Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 License: GPLv2 or later
 
 Tajweed level tests (Beginner, Intermediate, Advanced, Kids readiness) that recommend a course, collect consented email leads and follow up automatically.
@@ -44,6 +44,9 @@ Tajweed level tests (Beginner, Intermediate, Advanced, Kids readiness) that reco
 * action tjq_lead_captured - runs when a lead is saved, receives the row
 
 == Changelog ==
+= 1.4.2 =
+* "Create ALL 114 surah pages" button.
+
 = 1.4.1 =
 * New buttons "Refresh published learning pages / surah pages" (with confirmation) to update already-published generated pages; status is never changed and WordPress keeps a revision.
 
