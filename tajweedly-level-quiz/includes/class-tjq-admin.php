@@ -58,7 +58,7 @@ class TJQ_Admin {
 		);
 		$k = sanitize_key( $_GET['tjq_msg'] );
 		if ( isset( $map[ $k ] ) ) {
-			$text = $map[ $k ][1] . ( 'pages' === $k ? sprintf( ' (%d new, %d draft pages refreshed, %d left untouched because published or not created by this plugin)', $n, isset( $_GET['u'] ) ? (int) $_GET['u'] : 0, isset( $_GET['e'] ) ? (int) $_GET['e'] : 0 ) : '' );
+			$text = $map[ $k ][1] . ( 'pages' === $k ? sprintf( ' (%d new, %d pages refreshed, %d left untouched because published or not created by this plugin)', $n, isset( $_GET['u'] ) ? (int) $_GET['u'] : 0, isset( $_GET['e'] ) ? (int) $_GET['e'] : 0 ) : '' );
 			printf( '<div class="notice notice-%s is-dismissible"><p>%s</p></div>', esc_attr( $map[ $k ][0] ), esc_html( $text ) );
 		}
 	}
@@ -362,14 +362,14 @@ class TJQ_Admin {
 
 	public static function create_content() {
 		self::guard( 'tjq_create_content' );
-		list( $created, $existing, $updated ) = TJQ_SEO::create_content_pages();
+		list( $created, $existing, $updated ) = TJQ_SEO::create_content_pages( ! empty( $_GET['all'] ) ); // phpcs:ignore WordPress.Security.NonceVerification -- nonce checked in guard()
 		wp_safe_redirect( admin_url( 'admin.php?page=tjq-quran&tjq_msg=pages&n=' . (int) $created . '&e=' . (int) $existing . '&u=' . (int) $updated ) );
 		exit;
 	}
 
 	public static function create_surahs() {
 		self::guard( 'tjq_create_surahs' );
-		list( $created, $existing, $updated ) = TJQ_SEO::create_surah_pages( TJQ_Content::default_surahs() );
+		list( $created, $existing, $updated ) = TJQ_SEO::create_surah_pages( TJQ_Content::default_surahs(), ! empty( $_GET['all'] ) ); // phpcs:ignore WordPress.Security.NonceVerification -- nonce checked in guard()
 		wp_safe_redirect( admin_url( 'admin.php?page=tjq-quran&tjq_msg=pages&n=' . (int) $created . '&e=' . (int) $existing . '&u=' . (int) $updated ) );
 		exit;
 	}
@@ -397,13 +397,15 @@ class TJQ_Admin {
 			<h2>2. Create the pages (as drafts)</h2>
 			<p>
 				<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=tjq_create_content' ), 'tjq_create_content' ) ); ?>">Create learning pages</a>
+				<a class="button" onclick="return confirm('This replaces the content of learning pages made by this plugin, INCLUDING published ones. Manual edits to those pages are lost (WordPress keeps a revision). Continue?');" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=tjq_create_content&all=1' ), 'tjq_create_content' ) ); ?>">Refresh published learning pages too</a>
 				<span class="description">Tajweed rules hub, izhar, idgham, iqlab, ikhfa, meem sakinah, ghunnah, qalqalah, madd, sun &amp; moon letters, makharij, glossary, colour-coded Quran reader, Ramadan challenge.</span>
 			</p>
 			<p>
 				<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=tjq_create_surahs' ), 'tjq_create_surahs' ) ); ?>">Create surah pages</a>
+				<a class="button" onclick="return confirm('This replaces the content of surah pages made by this plugin, INCLUDING published ones. Manual edits to those pages are lost (WordPress keeps a revision). Continue?');" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=tjq_create_surahs&all=1' ), 'tjq_create_surahs' ) ); ?>">Refresh published surah pages too</a>
 				<span class="description">Al-Fatihah, Al-Kahf, Ya-Sin, Ar-Rahman, Al-Waqiah, Al-Mulk and all of Juz Amma (<?php echo (int) count( TJQ_Content::default_surahs() ); ?> pages).</span>
 			</p>
-			<p class="description">Pages are created as <strong>drafts</strong>. Pressing a button again refreshes pages that are still drafts and were made by this plugin (so you get the latest improvements); published pages are never touched. Publish them gradually (a few per week) and add the "Tajweed rules" hub to your menu.</p>
+			<p class="description">Pages are created as <strong>drafts</strong>. Pressing a button again refreshes pages that are still drafts and were made by this plugin (so you get the latest improvements); published pages are only refreshed with the "Refresh published" buttons. Publish them gradually (a few per week) and add the "Tajweed rules" hub to your menu.</p>
 		</div>
 		<script>
 		(function(){

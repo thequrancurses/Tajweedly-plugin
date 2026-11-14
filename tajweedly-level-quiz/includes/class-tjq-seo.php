@@ -279,7 +279,7 @@ class TJQ_SEO {
 	 * Creates pages from specs (slug => spec) as DRAFTS, skipping slugs that exist.
 	 * Content specs are composed by TJQ_Content::compose(); every page gets the _tjq_page marker.
 	 */
-	public static function create_from_specs( array $specs, array $extra_meta = array() ) {
+	public static function create_from_specs( array $specs, array $extra_meta = array(), $include_published = false ) {
 		$created  = 0;
 		$existing = 0;
 		$updated  = 0;
@@ -294,8 +294,8 @@ class TJQ_SEO {
 				'post_excerpt' => $spec['desc'],
 			);
 			if ( $found ) {
-				// Refresh only pages this plugin generated that are STILL DRAFTS. Published or hand-edited pages are never touched.
-				if ( 'draft' === $found->post_status && get_post_meta( $found->ID, '_tjq_page', true ) ) {
+				// Refresh only pages this plugin generated. Published ones only when explicitly requested (WordPress keeps a revision to restore from). Status is never changed.
+				if ( ( 'draft' === $found->post_status || ( $include_published && in_array( $found->post_status, array( 'publish', 'pending', 'private', 'future' ), true ) ) ) && get_post_meta( $found->ID, '_tjq_page', true ) ) {
 					$args['ID'] = $found->ID;
 					$id         = wp_update_post( $args );
 					if ( $id && ! is_wp_error( $id ) ) {
@@ -336,15 +336,15 @@ class TJQ_SEO {
 		}
 	}
 
-	public static function create_content_pages() {
+	public static function create_content_pages( $include_published = false ) {
 		$specs                             = TJQ_Content::specs();
 		$specs['tajweed-glossary']         = TJQ_Content::glossary_spec();
 		$specs['quran-with-tajweed-colors'] = TJQ_Content::reader_spec();
 		$specs['ramadan-quran-challenge']  = TJQ_Content::ramadan_spec();
-		return self::create_from_specs( $specs, array( 'tajweed-glossary' => array( '_tjq_glossary' => 1 ) ) );
+		return self::create_from_specs( $specs, array( 'tajweed-glossary' => array( '_tjq_glossary' => 1 ) ), $include_published );
 	}
 
-	public static function create_surah_pages( array $numbers ) {
+	public static function create_surah_pages( array $numbers, $include_published = false ) {
 		$specs = array();
 		foreach ( $numbers as $n ) {
 			$n = (int) $n;
@@ -353,7 +353,7 @@ class TJQ_SEO {
 				$specs[ $spec['slug'] ] = $spec;
 			}
 		}
-		return self::create_from_specs( $specs );
+		return self::create_from_specs( $specs, array(), $include_published );
 	}
 
 	/** Creates the landing pages as DRAFTS (skips slugs that already exist). Returns [created, existing]. */

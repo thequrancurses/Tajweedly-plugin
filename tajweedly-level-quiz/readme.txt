@@ -2,7 +2,7 @@
 Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 License: GPLv2 or later
 
 Tajweed level tests (Beginner, Intermediate, Advanced, Kids readiness) that recommend a course, collect consented email leads and follow up automatically.
@@ -44,6 +44,9 @@ Tajweed level tests (Beginner, Intermediate, Advanced, Kids readiness) that reco
 * action tjq_lead_captured - runs when a lead is saved, receives the row
 
 == Changelog ==
+= 1.4.1 =
+* New buttons "Refresh published learning pages / surah pages" (with confirmation) to update already-published generated pages; status is never changed and WordPress keeps a revision.
+
 = 1.4.0 =
 * Interactive tajweed lessons: ordered course map with progress ([tajweedly_path]), letter explorer ([tajweedly_explorer]), 10-question practice rounds with instant feedback ([tajweedly_drill]), lesson header with contents and previous/next, "mark as done". Progress is stored only in the visitor's browser.
 * New look for all learning pages. Press the "Create learning pages" button again to refresh draft pages.
