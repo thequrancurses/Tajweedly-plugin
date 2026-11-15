@@ -1,39 +1,58 @@
-/* Colour-coded Quran + Arabic helper styles for generated pages. */
-.tjq-mushaf{--m-bg:#fff;--m-text:#1f2937;--m-line:#e5e7eb;--m-size:2rem;max-width:860px;margin:0 auto;padding:18px;background:var(--m-bg);color:var(--m-text);border:1px solid var(--m-line);border-radius:14px;line-height:1.6;box-sizing:border-box}
-.tjq-mushaf[data-theme=sepia]{--m-bg:#f6efe0;--m-text:#3b2f1e;--m-line:#e0d4b8}
-.tjq-mushaf[data-theme=dark]{--m-bg:#14171c;--m-text:#e8e8e8;--m-line:#2a2f37}
+/* Colour-coded Quran: reading-first layout. Controls live in one panel, details are on demand. */
+.tjq-mushaf{--m-bg:#fff;--m-text:#1f2937;--m-line:#e5e7eb;--m-muted:#6b7280;--m-size:2rem;max-width:820px;margin:0 auto;padding:0 18px 18px;background:var(--m-bg);color:var(--m-text);border:1px solid var(--m-line);border-radius:16px;line-height:1.6;box-sizing:border-box;position:relative}
+.tjq-mushaf[data-theme=sepia]{--m-bg:#f6efe0;--m-text:#3b2f1e;--m-line:#e0d4b8;--m-muted:#7a6a50}
+.tjq-mushaf[data-theme=dark]{--m-bg:#14171c;--m-text:#e8e8e8;--m-line:#2a2f37;--m-muted:#a1a8b3}
 .tjq-mushaf *{box-sizing:border-box}
 .tjq-ar,.ar{font-family:"Amiri Quran","KFGQPC Uthmanic Script HAFS","Scheherazade New","Traditional Arabic",serif}
-.tjq-mushaf .tjq-ar{font-size:var(--m-size);line-height:2.3;margin:0;text-align:right}
-.tjq-sh{text-align:center;margin:8px 0 14px}
-.tjq-sh h2{margin:0;font-size:2.2rem;line-height:1.6;text-align:center;color:var(--tjq-primary,#0f766e)}
-.tjq-sh p{margin:0;color:#6b7280}
-.tjq-mushaf[data-theme=dark] .tjq-sh p{color:#a1a8b3}
-.tjq-pick{margin:0 0 12px}
-.tjq-pick select{padding:8px 10px;border:2px solid var(--m-line);border-radius:8px;font-size:1em;max-width:100%}
-.tjq-tools{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
-.tjq-tools button{padding:7px 14px;border:2px solid var(--tjq-primary,#0f766e);background:transparent;color:var(--tjq-primary,#0f766e);border-radius:8px;font-weight:600;cursor:pointer}
-.tjq-tools button[aria-pressed=true]{background:var(--tjq-primary,#0f766e);color:#fff}
-.tjq-legend{border:1px solid var(--m-line);border-radius:10px;padding:8px 12px;margin:0 0 14px;font-size:.92rem}
-.tjq-legend summary{cursor:pointer;font-weight:700}
-.tjq-lg{margin:8px 0}
-.tjq-lg ul{list-style:none;margin:4px 0 0;padding:0}
-.tjq-lg li{display:flex;gap:8px;align-items:flex-start;margin:3px 0}
+/* top bar */
+.tjq-bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 -18px;padding:10px 18px;background:var(--m-bg);border-bottom:1px solid var(--m-line);border-radius:16px 16px 0 0}
+.tjq-pick{margin:0;min-width:0}.tjq-pick select{max-width:100%;padding:7px 10px;border:1px solid var(--m-line);border-radius:10px;background:var(--m-bg);color:var(--m-text);font-size:.95rem}
+.tjq-bar-title{font-weight:700}
+.tjq-gear{flex:none;padding:7px 14px;border:1px solid var(--m-line);border-radius:999px;background:transparent;color:var(--m-text);font:inherit;font-size:.9rem;cursor:pointer}
+.tjq-gear[aria-expanded=true]{background:var(--tjq-primary,#0f766e);color:#fff;border-color:transparent}
+/* settings panel */
+.tjq-panel{border:1px solid var(--m-line);border-radius:14px;margin:12px 0;padding:6px 14px;background:var(--m-bg)}
+.tjq-panel[hidden]{display:none}
+.tjq-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--m-line)}
+.tjq-ctl{display:flex;gap:6px;flex-wrap:wrap}
+.tjq-ctl button{padding:6px 13px;border:1px solid var(--m-line);border-radius:999px;background:transparent;color:var(--m-text);font:inherit;font-size:.9rem;cursor:pointer}
+.tjq-ctl button[aria-pressed=true],.tjq-ctl button.is-on{background:var(--tjq-primary,#0f766e);color:#fff;border-color:transparent}
+.tjq-ctl .tjq-th{width:32px;height:32px;padding:0;border-radius:50%;border:2px solid var(--m-line)}
+.tjq-th-light{background:#fff}.tjq-th-sepia{background:#f6efe0}.tjq-th-dark{background:#14171c}
+.tjq-ctl .tjq-th.is-on{border-color:var(--tjq-primary,#0f766e);box-shadow:0 0 0 2px var(--tjq-primary,#0f766e)}
+.tjq-legend{margin:8px 0;font-size:.92rem}.tjq-legend summary{cursor:pointer;font-weight:700;padding:6px 0}
+.tjq-lg{margin:8px 0}.tjq-lg ul{list-style:none;margin:4px 0 0;padding:0}.tjq-lg li{display:flex;gap:8px;align-items:flex-start;margin:3px 0}
 .tjq-sw{display:inline-block;flex:0 0 14px;width:14px;height:14px;border-radius:4px;margin-top:4px;vertical-align:middle}
-.tjq-ayah{padding:8px 0;border-bottom:1px solid var(--m-line)}
-.tjq-trans{margin:0;color:#4b5563;font-size:.98rem}
-.tjq-mushaf[data-theme=dark] .tjq-trans{color:#b6bcc6}
-.tjq-mushaf[data-trans="0"] .tjq-trans{display:none}
-.tjq-num{font-family:"Amiri Quran","Scheherazade New",serif;color:var(--tjq-primary,#0f766e);font-size:.8em;white-space:nowrap}
-.tjq-pager{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0}
-.tjq-pager a,.tjq-pager .cur{padding:6px 12px;border:1px solid var(--m-line);border-radius:8px;text-decoration:none}
+/* reading area */
+.tjq-sh{text-align:center;margin:18px 0 10px}
+.tjq-sh h2{margin:0;font-size:2.4rem;line-height:1.5;text-align:center;color:var(--tjq-primary,#0f766e)}
+.tjq-sh p{margin:0;color:var(--m-muted);font-size:.9rem}
+.tjq-mushaf .tjq-text{font-size:var(--m-size);line-height:2.35;text-align:justify;text-justify:inter-word;padding:6px 0 10px}
+.tjq-mushaf .tjq-ar{font-size:1em}
+.tjq-ayah{border-radius:8px;cursor:pointer;transition:background .15s;-webkit-tap-highlight-color:transparent}
+.tjq-ayah.is-sel{background:rgba(245,158,11,.18)}
+.tjq-trans{display:none}
+.tjq-num{font-family:"Amiri Quran","Scheherazade New",serif;color:var(--tjq-primary,#0f766e);font-size:.7em;white-space:nowrap}
+/* verse-by-verse (Arabic only, default) and with-translation modes */
+.tjq-mushaf[data-mode=lines] .tjq-text{text-align:start}
+.tjq-mushaf[data-mode=lines] .tjq-ayah{display:block;padding:8px 2px;border-bottom:1px solid var(--m-line);border-radius:0}
+.tjq-mushaf[data-mode=lines] .tjq-ayah{text-align:right}
+.tjq-mushaf[data-mode=verse] .tjq-text{text-align:start}
+.tjq-mushaf[data-mode=verse] .tjq-ayah{display:block;padding:10px 4px;border-bottom:1px solid var(--m-line);border-radius:0}
+.tjq-mushaf[data-mode=verse] .tjq-ayah{text-align:right}
+.tjq-mushaf[data-mode=verse] .tjq-trans{display:block;font-size:.98rem;line-height:1.55;color:var(--m-muted);margin-top:2px;text-align:left}
+/* tap card */
+.tjq-pop{position:sticky;bottom:10px;z-index:6;margin:8px 0 0;padding:12px 38px 12px 14px;border-radius:14px;background:#111827;color:#fff;font-size:.95rem;line-height:1.5;box-shadow:0 6px 24px #0004}
+.tjq-pop[hidden]{display:none}
+.tjq-pop b{color:var(--tjq-accent,#f59e0b)}.tjq-pop .tjq-x{position:absolute;top:6px;right:8px;border:0;background:transparent;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1}
+.tjq-hint{text-align:center;font-size:.85rem;color:var(--m-muted);margin:4px 0 8px}
+.tjq-pager{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:12px 0}
+.tjq-pager a,.tjq-pager .cur{padding:6px 12px;border:1px solid var(--m-line);border-radius:8px;text-decoration:none;color:inherit}
 .tjq-pager .cur{background:var(--tjq-primary,#0f766e);color:#fff;border-color:var(--tjq-primary,#0f766e)}
-.tjq-h3{margin:18px 0 6px}
-.tjq-counts{width:100%;border-collapse:collapse}
-.tjq-counts td{border-bottom:1px solid var(--m-line);padding:6px 4px}
-.tjq-counts td:last-child{text-align:end;font-weight:700}
-.tjq-note{font-size:.85rem;color:#6b7280;margin:10px 0}
-.tjq-nb{margin:10px 0}
+.tjq-countsd{border:1px solid var(--m-line);border-radius:12px;padding:6px 14px;margin:10px 0;font-size:.95rem}.tjq-countsd summary{cursor:pointer;font-weight:700;padding:6px 0}
+.tjq-counts{width:100%;border-collapse:collapse}.tjq-counts td{border-bottom:1px solid var(--m-line);padding:6px 4px}.tjq-counts td:last-child{text-align:end;font-weight:700}
+.tjq-note{font-size:.8rem;color:var(--m-muted);margin:10px 0}
+.tjq-nb{margin:10px 0;text-align:center}
 /* Rule colours (AlQuran Cloud tajweed guide) */
 .tj-h,.tj-s,.tj-l{color:#AAAAAA}.tj-n{color:#537FFF}.tj-p{color:#4050FF}.tj-m{color:#000EBC}.tj-o{color:#2144C1}
 .tj-q{color:#DD0008}.tj-c{color:#D500B7}.tj-f{color:#9400A8}.tj-w{color:#58B800}.tj-i{color:#26BFFD}
@@ -48,4 +67,4 @@
 .tjq-page th{background:#f3f4f6}
 .tjq-tip{border:2px solid var(--tjq-primary,#0f766e);border-radius:14px;padding:16px 20px;margin:18px 0;background:#f0fdfa}
 .tjq-tip strong{display:block;color:var(--tjq-primary,#0f766e);margin-bottom:4px}
-@media (max-width:520px){.tjq-mushaf{padding:12px;--m-size:1.6rem}.tjq-sh h2{font-size:1.8rem}}
+@media (max-width:520px){.tjq-mushaf{padding:0 12px 12px;--m-size:1.6rem}.tjq-bar{margin:0 -12px;padding:8px 12px}.tjq-sh h2{font-size:1.9rem}.tjq-mushaf .tjq-text{text-align:right}}

@@ -264,10 +264,10 @@ class TJQ_Mushaf {
 
 	/* ---------- Rendering ---------- */
 
-	public static function legend_html() {
+	public static function legend_html( $open = false ) {
 		$rules  = self::rules();
 		$groups = self::groups();
-		$out    = '<details class="tjq-legend" open><summary>' . esc_html__( 'Colour guide', 'tajweedly-quiz' ) . '</summary>';
+		$out    = '<details class="tjq-legend"' . ( $open ? ' open' : '' ) . '><summary>' . esc_html__( 'Colour guide', 'tajweedly-quiz' ) . '</summary>';
 		foreach ( $groups as $g => $title ) {
 			$out .= '<div class="tjq-lg"><strong>' . esc_html( $title ) . '</strong><ul>';
 			$seen = array();
@@ -301,26 +301,37 @@ class TJQ_Mushaf {
 		$s     = TJQ_Settings::all();
 		$known = self::surahs();
 		$data  = self::get( $n );
-		$out   = '<div class="tjq-mushaf" style="--tjq-primary:' . esc_attr( $s['primary_color'] ) . ';--tjq-accent:' . esc_attr( $s['accent_color'] ) . '" data-trans="' . ( $s['mushaf_translation'] ? '1' : '0' ) . '">';
+		$rules = array();
+		foreach ( self::rules() as $code => $r ) {
+			$rules[ $code ] = array( $r[0], $r[1] );
+		}
+		$out = '<div class="tjq-mushaf" data-mode="lines" data-trans="' . ( $s['mushaf_translation'] ? '1' : '0' ) . '" data-surah="' . esc_attr( $known[ $n ][0] ) . '" data-n="' . (int) $n . '" data-rules="' . esc_attr( wp_json_encode( $rules ) ) . '" style="--tjq-primary:' . esc_attr( $s['primary_color'] ) . ';--tjq-accent:' . esc_attr( $s['accent_color'] ) . '">';
 
+		// Slim top bar: surah picker (or title) + one settings button. Everything else is hidden until needed.
+		$out .= '<div class="tjq-bar">';
 		if ( $picker ) {
-			$out .= '<form class="tjq-pick" method="get" action="' . esc_url( get_permalink() ) . '"><label>' . esc_html__( 'Surah', 'tajweedly-quiz' ) . ' <select name="surah" onchange="this.form.submit()">';
+			$out .= '<form class="tjq-pick" method="get" action="' . esc_url( get_permalink() ) . '"><label class="screen-reader-text" for="tjq-surah-' . (int) $n . '">' . esc_html__( 'Surah', 'tajweedly-quiz' ) . '</label><select id="tjq-surah-' . (int) $n . '" name="surah" onchange="this.form.submit()">';
 			foreach ( $known as $num => $info ) {
 				$out .= '<option value="' . (int) $num . '"' . selected( $n, $num, false ) . '>' . (int) $num . '. ' . esc_html( $info[0] ) . '</option>';
 			}
-			$out .= '</select></label><noscript><button type="submit">' . esc_html__( 'Go', 'tajweedly-quiz' ) . '</button></noscript></form>';
+			$out .= '</select><noscript><button type="submit">' . esc_html__( 'Go', 'tajweedly-quiz' ) . '</button></noscript></form>';
+		} else {
+			$out .= '<span class="tjq-bar-title">' . esc_html( sprintf( '%d. %s', $n, $known[ $n ][0] ) ) . '</span>';
 		}
+		if ( $data ) {
+			$out .= '<button type="button" class="tjq-gear" data-act="panel" aria-expanded="false" aria-controls="tjq-panel-' . (int) $n . '">' . esc_html__( 'Reading options', 'tajweedly-quiz' ) . '</button>';
+		}
+		$out .= '</div>';
 		if ( ! $data ) {
 			return $out . '<p class="tjq-note">' . esc_html__( 'The Quran text could not be loaded right now. Please try again in a few minutes.', 'tajweedly-quiz' ) . '</p></div>';
 		}
 
-		// Toolbar.
-		$out .= '<div class="tjq-tools" role="toolbar" aria-label="Reading options">'
-			. '<button type="button" data-act="font-" aria-label="Smaller text">A-</button>'
-			. '<button type="button" data-act="font+" aria-label="Larger text">A+</button>'
-			. '<button type="button" data-act="colors" aria-pressed="true">' . esc_html__( 'Colours', 'tajweedly-quiz' ) . '</button>'
-			. ( $data['has_en'] ? '<button type="button" data-act="trans" aria-pressed="' . ( $s['mushaf_translation'] ? 'true' : 'false' ) . '">' . esc_html__( 'Translation', 'tajweedly-quiz' ) . '</button>' : '' )
-			. '<button type="button" data-act="theme">' . esc_html__( 'Light / Sepia / Dark', 'tajweedly-quiz' ) . '</button></div>';
+		$out .= '<div class="tjq-panel" id="tjq-panel-' . (int) $n . '" hidden>'
+			. '<div class="tjq-row"><span>' . esc_html__( 'Text size', 'tajweedly-quiz' ) . '</span><span class="tjq-ctl"><button type="button" data-act="font-" aria-label="Smaller text">A-</button><button type="button" data-act="font+" aria-label="Larger text">A+</button></span></div>'
+			. '<div class="tjq-row"><span>' . esc_html__( 'Background', 'tajweedly-quiz' ) . '</span><span class="tjq-ctl"><button type="button" class="tjq-th tjq-th-light" data-theme-set="light" aria-label="Light"></button><button type="button" class="tjq-th tjq-th-sepia" data-theme-set="sepia" aria-label="Sepia"></button><button type="button" class="tjq-th tjq-th-dark" data-theme-set="dark" aria-label="Dark"></button></span></div>'
+			. '<div class="tjq-row"><span>' . esc_html__( 'Tajweed colours', 'tajweedly-quiz' ) . '</span><span class="tjq-ctl"><button type="button" class="tjq-sw-btn" data-act="colors" aria-pressed="true">' . esc_html__( 'On', 'tajweedly-quiz' ) . '</button></span></div>'
+			. '<div class="tjq-row"><span>' . esc_html__( 'Layout', 'tajweedly-quiz' ) . '</span><span class="tjq-ctl"><button type="button" data-act="mode" data-mode-set="lines">' . esc_html__( 'Verse by verse', 'tajweedly-quiz' ) . '</button><button type="button" data-act="mode" data-mode-set="flow">' . esc_html__( 'Mushaf', 'tajweedly-quiz' ) . '</button>' . ( $data['has_en'] ? '<button type="button" data-act="mode" data-mode-set="verse">' . esc_html__( 'With translation', 'tajweedly-quiz' ) . '</button>' : '' ) . '</span></div>'
+			. self::legend_html( false ) . '</div>';
 
 		// Parse the whole surah once for the counts, render only the current page.
 		$total = count( $data['ayahs'] );
@@ -335,17 +346,17 @@ class TJQ_Mushaf {
 				$all[ $code ] = ( isset( $all[ $code ] ) ? $all[ $code ] : 0 ) + $num;
 			}
 			if ( $k >= $from && $k < $from + self::PER_PAGE ) {
-				$body .= '<div class="tjq-ayah"><p class="tjq-ar" lang="ar" dir="rtl">' . $html . ' <span class="tjq-num">﴿' . esc_html( self::arabic_digits( $a['i'] ) ) . '﴾</span></p>'
-					. ( '' !== $a['e'] ? '<p class="tjq-trans" lang="en">' . esc_html( $a['i'] . '. ' . $a['e'] ) . '</p>' : '' )
-					. '</div>';
+				$body .= '<span class="tjq-ayah" data-i="' . (int) $a['i'] . '"><span class="tjq-ar" lang="ar" dir="rtl">' . $html . '</span> <span class="tjq-num">﴿' . esc_html( self::arabic_digits( $a['i'] ) ) . '﴾</span>'
+					. ( '' !== $a['e'] ? '<span class="tjq-trans" lang="en" dir="ltr">' . esc_html( $a['i'] . '. ' . $a['e'] ) . '</span>' : '' )
+					. '</span> ';
 			}
 		}
 
 		$out .= '<header class="tjq-sh"><h2 class="tjq-ar" lang="ar" dir="rtl">' . esc_html( $data['name'] ) . '</h2><p>'
 			. esc_html( sprintf( '%d. %s', $n, $known[ $n ][0] ) ) . ' &middot; ' . esc_html( sprintf( _n( '%d ayah', '%d ayat', $total, 'tajweedly-quiz' ), $total ) )
 			. ( $data['type'] ? ' &middot; ' . esc_html( $data['type'] ) : '' ) . '</p></header>';
-		$out .= self::legend_html();
-		$out .= '<div class="tjq-text">' . $body . '</div>';
+		$out .= '<div class="tjq-text" dir="rtl">' . $body . '</div>';
+		$out .= '<div class="tjq-pop" role="status" aria-live="polite" hidden></div>';
 
 		if ( $pages > 1 ) {
 			$out .= '<nav class="tjq-pager" aria-label="Pages">';
@@ -355,25 +366,26 @@ class TJQ_Mushaf {
 			}
 			$out .= '</nav>';
 		}
+		$out .= '<p class="tjq-hint">' . esc_html__( 'Tip: tap any ayah for its translation, or a coloured letter to see its rule.', 'tajweedly-quiz' ) . '</p>';
 
-		// Rule counts (computed from the source annotations of the whole surah).
+		// Rule counts (computed from the source annotations of the whole surah), collapsed by default.
 		if ( $all ) {
-			$rules = self::rules();
-			$out  .= '<h3 class="tjq-h3">' . esc_html__( 'Tajweed rules marked in this surah', 'tajweedly-quiz' ) . '</h3><table class="tjq-counts"><tbody>';
-			foreach ( $rules as $code => $r ) {
+			$out .= '<details class="tjq-countsd"><summary>' . esc_html__( 'Tajweed rules marked in this surah', 'tajweedly-quiz' ) . '</summary><table class="tjq-counts"><tbody>';
+			foreach ( self::rules() as $code => $r ) {
 				if ( empty( $all[ $code ] ) || 'silent' === $r[2] ) {
 					continue;
 				}
 				$out .= '<tr><td><span class="tjq-sw" style="background:' . esc_attr( $r[1] ) . '"></span> ' . esc_html( $r[0] ) . '</td><td>' . (int) $all[ $code ] . '</td></tr>';
 			}
-			$out .= '</tbody></table><p class="tjq-note">' . esc_html__( 'Counts are the number of coloured places in the text, as annotated by the data source.', 'tajweedly-quiz' ) . '</p>';
+			$out .= '</tbody></table><p class="tjq-note">' . esc_html__( 'Counts are the number of coloured places in the text, as annotated by the data source.', 'tajweedly-quiz' ) . '</p></details>';
 		}
 
-		$out .= '<p class="tjq-note">' . esc_html__( 'Text and tajweed colouring: AlQuran Cloud (quran-tajweed). English: Sahih International. Colouring is a learning aid; learn recitation from a qualified teacher and check it against a printed mushaf.', 'tajweedly-quiz' ) . '</p>';
-		$out .= TJQ_Shortcode::cta_html( $s['cta_text'], '', 'mushaf' );
 		$out .= self::neighbours( $n );
+		$out .= TJQ_Shortcode::cta_html( $s['cta_text'], '', 'mushaf' );
+		$out .= '<p class="tjq-note">' . esc_html__( 'Text and tajweed colouring: AlQuran Cloud (quran-tajweed). English: Sahih International. Colouring is a learning aid; learn recitation from a qualified teacher and check it against a printed mushaf.', 'tajweedly-quiz' ) . '</p>';
 		return $out . '</div>';
 	}
+
 
 	/** Links to the previous / next surah pages when they exist. */
 	private static function neighbours( $n ) {
