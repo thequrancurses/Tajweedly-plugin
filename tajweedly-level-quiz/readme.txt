@@ -2,7 +2,7 @@
 Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 License: GPLv2 or later
 
 Tajweed level tests (Beginner, Intermediate, Advanced, Kids readiness) that recommend a course, collect consented email leads and follow up automatically.
@@ -44,6 +44,9 @@ Tajweed level tests (Beginner, Intermediate, Advanced, Kids readiness) that reco
 * action tjq_lead_captured - runs when a lead is saved, receives the row
 
 == Changelog ==
+= 1.5.1 =
+* Leads show an approximate location (city/region/country from CDN location headers, plus the visitor browser time zone). IP addresses are not stored and no third-party lookup is made. Mention it in your privacy policy.
+
 = 1.5.0 =
 * Quran reader redesigned for focus: slim top bar, one "Reading options" panel (text size, background, colours, layout), verse-by-verse Arabic by default, Mushaf and with-translation layouts, tap an ayah for translation, tap a coloured letter to see its rule. Colour guide and rule counts are collapsed.
 

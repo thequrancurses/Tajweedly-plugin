@@ -313,7 +313,7 @@
 			if (!email.value) { err.textContent = t('needEmail'); return; }
 			if (!consent.checked) { err.textContent = t('needConsent'); return; }
 			btn.setAttribute('disabled', 'disabled');
-			api('lead', { attempt_id: R.attempt_id, token: R.token, name: name.value, email: email.value, consent: true, website: hp.value }).then(function (res) {
+			api('lead', { attempt_id: R.attempt_id, token: R.token, tz: (function () { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; } })(), name: name.value, email: email.value, consent: true, website: hp.value }).then(function (res) {
 				track('tjq_lead', { level: R.level, band: R.band, variant: variant });
 				host.innerHTML = ''; host.appendChild(thanks(R, res, name.value, email.value));
 			}).catch(function (ex) { err.textContent = ex.message; btn.removeAttribute('disabled'); });

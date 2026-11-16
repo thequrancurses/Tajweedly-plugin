@@ -16,6 +16,55 @@ class TJQ_Tools {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_embed' ), 1 );
 	}
 
+	/* ---------- Approximate location (country / region / city), without storing IPs or calling third parties ---------- */
+
+	/**
+	 * Reads the location headers a CDN or host adds to the request (Cloudflare, CloudFront, Vercel, ...).
+	 * The IP address itself is NOT stored and no external lookup is made. City level needs the host to send it
+	 * (Cloudflare: turn on "Add visitor location headers"). Result is approximate and never a street address.
+	 * Filter `tjq_geo` lets a site plug in its own offline database (for example MaxMind GeoLite2).
+	 */
+	public static function geo() {
+		$map = array(
+			'country' => array( 'HTTP_CF_IPCOUNTRY', 'HTTP_CLOUDFRONT_VIEWER_COUNTRY', 'HTTP_X_VERCEL_IP_COUNTRY', 'HTTP_X_COUNTRY_CODE' ),
+			'region'  => array( 'HTTP_CF_REGION', 'HTTP_CLOUDFRONT_VIEWER_COUNTRY_REGION_NAME', 'HTTP_X_VERCEL_IP_COUNTRY_REGION' ),
+			'city'    => array( 'HTTP_CF_IPCITY', 'HTTP_CLOUDFRONT_VIEWER_CITY', 'HTTP_X_VERCEL_IP_CITY' ),
+		);
+		$out = array();
+		foreach ( $map as $k => $keys ) {
+			foreach ( $keys as $h ) {
+				if ( ! empty( $_SERVER[ $h ] ) ) {
+					$v = sanitize_text_field( rawurldecode( wp_unslash( $_SERVER[ $h ] ) ) );
+					if ( 'country' === $k ) {
+						$v = strtoupper( trim( $v ) );
+						if ( ! preg_match( '/^[A-Z]{2}$/', $v ) || 'XX' === $v ) { // also drops Cloudflare's "T1" (Tor) and unknown values.
+							continue;
+						}
+					}
+					$out[ $k ] = substr( $v, 0, 80 );
+					break;
+				}
+			}
+		}
+		$out = apply_filters( 'tjq_geo', $out );
+		return is_array( $out ) ? array_intersect_key( array_map( 'sanitize_text_field', $out ), array_flip( array( 'country', 'region', 'city' ) ) ) : array();
+	}
+
+	/** Human readable "City, Region, GB (Europe/London)" from a stored meta array. */
+	public static function loc_label( $meta ) {
+		$m = is_string( $meta ) ? json_decode( $meta, true ) : $meta;
+		if ( ! is_array( $m ) || empty( $m['loc'] ) || ! is_array( $m['loc'] ) ) {
+			return '';
+		}
+		$l     = $m['loc'];
+		$parts = array_filter( array( isset( $l['city'] ) ? $l['city'] : '', isset( $l['region'] ) ? $l['region'] : '', isset( $l['country'] ) ? $l['country'] : '' ) );
+		$out   = implode( ', ', $parts );
+		if ( ! empty( $l['tz'] ) ) {
+			$out .= ( $out ? ' ' : '' ) . '(' . $l['tz'] . ')';
+		}
+		return $out;
+	}
+
 	/* ---------- Tip of the day ---------- */
 
 	public static function tips() {

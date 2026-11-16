@@ -173,10 +173,10 @@ class TJQ_Admin {
 			</form>
 			<p class="description">Setting a lead to Trial booked, Paid or Lost stops their follow-up emails automatically.</p>
 			<table class="widefat striped">
-				<thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Test</th><th>Result</th><th>Source</th><th>Referrals</th><th>Status</th><th>Consent</th><th></th></tr></thead>
+				<thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Test</th><th>Result</th><th>Source</th><th>Location (approx.)</th><th>Referrals</th><th>Status</th><th>Consent</th><th></th></tr></thead>
 				<tbody>
 				<?php if ( ! $rows ) : ?>
-					<tr><td colspan="10">No leads yet.</td></tr>
+					<tr><td colspan="11">No leads yet.</td></tr>
 				<?php endif; ?>
 				<?php foreach ( $rows as $r ) : ?>
 					<tr>
@@ -186,6 +186,7 @@ class TJQ_Admin {
 						<td><?php echo esc_html( isset( $tests[ $r->level ] ) ? $tests[ $r->level ]['label'] : $r->level ); ?></td>
 						<td><?php echo 'kids' === $r->level || 'challenge' === $r->level || 'incomplete' === $r->band ? esc_html( $r->band ) : (int) $r->score . '/' . (int) $r->total . ' ' . esc_html( $r->band ); ?></td>
 						<td><?php echo esc_html( trim( $r->utm_source . ' ' . $r->utm_campaign ) ); ?></td>
+						<td><?php echo esc_html( TJQ_Tools::loc_label( $r->meta ) ); ?></td>
 						<td><?php echo (int) $r->referrals; ?></td>
 						<td>
 							<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
@@ -231,9 +232,9 @@ class TJQ_Admin {
 		header( 'Content-Disposition: attachment; filename=tajweedly-leads-' . gmdate( 'Y-m-d' ) . '.csv' );
 		$out = fopen( 'php://output', 'w' );
 		fwrite( $out, "\xEF\xBB\xBF" ); // UTF-8 BOM so Excel reads Arabic names correctly.
-		fputcsv( $out, array( 'date', 'name', 'email', 'test', 'band', 'score', 'total', 'goal', 'status', 'referrals', 'variant', 'utm_source', 'utm_medium', 'utm_campaign', 'consent_at', 'unsubscribed', 'details' ) );
+		fputcsv( $out, array( 'date', 'name', 'email', 'test', 'band', 'score', 'total', 'goal', 'status', 'referrals', 'variant', 'utm_source', 'utm_medium', 'utm_campaign', 'consent_at', 'unsubscribed', 'location', 'details' ) );
 		foreach ( TJQ_DB::all_leads() as $r ) {
-			fputcsv( $out, array_map( array( __CLASS__, 'csv_safe' ), array( $r->created_at, $r->name, $r->email, $r->level, $r->band, $r->score, $r->total, $r->goal, $r->status, $r->referrals, $r->variant, $r->utm_source, $r->utm_medium, $r->utm_campaign, $r->consent_at, $r->unsub, $r->meta ) ) );
+			fputcsv( $out, array_map( array( __CLASS__, 'csv_safe' ), array( $r->created_at, $r->name, $r->email, $r->level, $r->band, $r->score, $r->total, $r->goal, $r->status, $r->referrals, $r->variant, $r->utm_source, $r->utm_medium, $r->utm_campaign, $r->consent_at, $r->unsub, TJQ_Tools::loc_label( $r->meta ), $r->meta ) ) );
 		}
 		fclose( $out );
 		exit;

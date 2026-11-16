@@ -200,9 +200,20 @@ class TJQ_REST {
 			return $resp; // already captured
 		}
 		$name = self::str( $p, 'name', 120 );
+		$meta = json_decode( (string) $row->meta, true );
+		$meta = is_array( $meta ) ? $meta : array();
+		$loc  = TJQ_Tools::geo();
+		$tz   = isset( $p['tz'] ) ? substr( preg_replace( '/[^A-Za-z0-9_\/+\-]/', '', (string) $p['tz'] ), 0, 40 ) : '';
+		if ( '' !== $tz ) {
+			$loc['tz'] = $tz;
+		}
+		if ( $loc ) {
+			$meta['loc'] = $loc;
+		}
 		TJQ_DB::update(
 			$row->id,
 			array(
+				'meta'         => wp_json_encode( $meta ),
 				'name'         => $name,
 				'email'        => $email,
 				'consent'      => 1,
